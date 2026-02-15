@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz - Mundo Hispánico</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Poppins', sans-serif;}
+body {
+  background: linear-gradient(-45deg, #ff0000, #ff4500, #ff6347, #ff0000);
+  background-size: 400% 400%;
+  animation: gradientBG 15s ease infinite;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  color:white;
+}
+@keyframes gradientBG {
+  0% { background-position:0% 50%; }
+  50% { background-position:100% 50%; }
+  100% { background-position:0% 50%; }
+}
+@media (prefers-reduced-motion: reduce){body{animation:none;}}
+.container {
+  background: rgba(0,0,0,0.93);
+  width: 95%;
+  max-width: 1000px;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 0 60px rgba(0,0,0,0.7);
+  text-align: center;
+}
+h1 {margin-bottom:15px;font-size:2.2em;}
+button {
+  cursor:pointer;
+  border:none;
+  border-radius:30px;
+  padding:12px 25px;
+  font-weight:600;
+  transition:0.3s;
+}
+.category-select button{
+  margin:10px;
+  background:#f1bf00;
+  color:black;
+}
+.category-select button:hover{
+  transform:scale(1.1);
+  background:#ffd700;
+}
+.answers button{
+  display:block;
+  margin:12px auto;
+  width:85%;
+  background:white;
+  color:black;
+  font-size:1em;
+}
+.answers button:hover{
+  background:#f1bf00;
+  transform:scale(1.05);
+}
+.flag-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit, minmax(120px, 1fr));
+  gap:20px;
+  margin-top:20px;
+}
+.flag-btn{
+  padding:0;
+  border-radius:8px;
+  overflow:hidden;
+  background:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:80px;
+}
+.flag-btn img{
+  max-height:70px;
+  max-width:100%;
+  object-fit:contain;
+}
+.hidden{display:none;}
+.score{margin-top:20px;font-size:1.3em;}
+.result{font-size:1.6em;margin-top:20px;}
+.restart{
+  margin-top:20px;
+  background:#006847;
+  color:white;
+  padding:12px 25px;
+  font-weight:600;
+}
+.restart:hover{background:#009f5f;}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>🌎 Quiz del Mundo Hispánico 🌎</h1>
+
+<div class="category-select">
+<p>Elige una categoría:</p>
+<button onclick="startQuiz('platos')">🍽️ Platos</button>
+<button onclick="startQuiz('vestimenta')">👗 Vestimenta</button>
+<button onclick="startQuiz('banderas')">🚩 Banderas</button>
+<button onclick="startQuiz('personas')">🧑‍🎤 Personas Conocidas</button>
+<button onclick="startQuiz('monumentos')">🏛️ Monumentos</button>
+<button onclick="startQuiz('expresiones')">💬 Expresiones</button>
+</div>
+
+<div id="quiz" class="hidden">
+<h2 id="question"></h2>
+<div id="answers" class="answers"></div>
+<div id="score" class="score"></div>
+</div>
+
+<div id="result" class="hidden result"></div>
+<button id="restart" class="hidden restart" onclick="restartQuiz()">Volver a jugar</button>
+</div>
+
+<script>
+function shuffle(array){for(let i=array.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[array[i],array[j]]=[array[j],array[i]];}}
+
+// --- Toutes les questions complètes ---
+const quizData={
+platos:[
+{pregunta:"¿De qué país es 'Silpancho'?",respuestas:[{text:"Bolivia"},{text:"Perú"},{text:"El Salvador"},{text:"Colombia"}],correcta:"Bolivia"},
+{pregunta:"¿De qué país es 'Tacacho con Cecina'?",respuestas:[{text:"Perú"},{text:"Bolivia"},{text:"El Salvador"},{text:"Colombia"}],correcta:"Perú"},
+{pregunta:"¿De qué país es 'Yuca frita con chicharrón'?",respuestas:[{text:"El Salvador"},{text:"Paraguay"},{text:"Bolivia"},{text:"México"}],correcta:"El Salvador"},
+{pregunta:"¿De qué país es 'Mute Santandereano'?",respuestas:[{text:"Colombia"},{text:"Chile"},{text:"Bolivia"},{text:"Ecuador"}],correcta:"Colombia"},
+{pregunta:"¿De qué país es 'Curanto'?",respuestas:[{text:"Chile"},{text:"Perú"},{text:"Paraguay"},{text:"Cuba"}],correcta:"Chile"},
+{pregunta:"¿De qué país es 'Sopa Paraguaya'?",respuestas:[{text:"Paraguay"},{text:"Bolivia"},{text:"Perú"},{text:"Ecuador"}],correcta:"Paraguay"},
+{pregunta:"¿De qué país es 'Kak'ik'?",respuestas:[{text:"Guatemala"},{text:"Honduras"},{text:"Ecuador"},{text:"Cuba"}],correcta:"Guatemala"},
+{pregunta:"¿De qué país son 'Montucas'?",respuestas:[{text:"Honduras"},{text:"Ecuador"},{text:"Bolivia"},{text:"Cuba"}],correcta:"Honduras"},
+{pregunta:"¿De qué país es 'Bolón de Verde'?",respuestas:[{text:"Ecuador"},{text:"Cuba"},{text:"Perú"},{text:"Paraguay"}],correcta:"Ecuador"},
+{pregunta:"¿De qué país es 'Fufu de Plátano'?",respuestas:[{text:"Cuba"},{text:"Perú"},{text:"Bolivia"},{text:"Argentina"}],correcta:"Cuba"}
+],
+vestimenta:[
+{pregunta:"¿De qué país es la 'Robe de Flamenco'?",respuestas:[{text:"España"},{text:"México"},{text:"Argentina"},{text:"Chile"}],correcta:"España"},
+{pregunta:"¿De qué país es el 'Costume de Charro'?",respuestas:[{text:"México"},{text:"Argentina"},{text:"Chile"},{text:"España"}],correcta:"México"},
+{pregunta:"¿De qué país es la 'Tenue de Gaucho'?",respuestas:[{text:"Argentina"},{text:"Perú"},{text:"México"},{text:"España"}],correcta:"Argentina"},
+{pregunta:"¿De qué país es el 'Costume Andin'?",respuestas:[{text:"Perú"},{text:"Chile"},{text:"Colombia"},{text:"Bolivia"}],correcta:"Perú"},
+{pregunta:"¿De qué país es el 'Costume de Cumbia'?",respuestas:[{text:"Colombia"},{text:"Perú"},{text:"España"},{text:"México"}],correcta:"Colombia"},
+{pregunta:"¿De qué país es el 'Costume de Huaso'?",respuestas:[{text:"Chile"},{text:"Bolivia"},{text:"Perú"},{text:"México"}],correcta:"Chile"},
+{pregunta:"¿De qué país es la 'Tenue de Cholita'?",respuestas:[{text:"Bolivia"},{text:"Paraguay"},{text:"Chile"},{text:"Perú"}],correcta:"Bolivia"},
+{pregunta:"¿De qué país es el 'Costume Otavalo'?",respuestas:[{text:"Ecuador"},{text:"Bolivia"},{text:"Perú"},{text:"México"}],correcta:"Ecuador"},
+{pregunta:"¿De qué país es la 'Robe de Nanduti'?",respuestas:[{text:"Paraguay"},{text:"México"},{text:"Ecuador"},{text:"Chile"}],correcta:"Paraguay"},
+{pregunta:"¿De qué país es el 'Huipil Maya'?",respuestas:[{text:"Guatemala"},{text:"México"},{text:"Bolivia"},{text:"Perú"}],correcta:"Guatemala"}
+],
+banderas:[
+{pregunta:"Selecciona la bandera de México",respuestas:[{text:"México", img:"https://flagcdn.com/w320/mx.png"},{text:"Cuba", img:"https://flagcdn.com/w320/cu.png"},{text:"Colombia", img:"https://flagcdn.com/w320/co.png"},{text:"Bolivia", img:"https://flagcdn.com/w320/bo.png"}],correcta:"México"},
+{pregunta:"Selecciona la bandera de Colombia",respuestas:[{text:"México", img:"https://flagcdn.com/w320/mx.png"},{text:"Colombia", img:"https://flagcdn.com/w320/co.png"},{text:"Perú", img:"https://flagcdn.com/w320/pe.png"},{text:"Venezuela", img:"https://flagcdn.com/w320/ve.png"}],correcta:"Colombia"},
+{pregunta:"Selecciona la bandera de Perú",respuestas:[{text:"Perú", img:"https://flagcdn.com/w320/pe.png"},{text:"Chile", img:"https://flagcdn.com/w320/cl.png"},{text:"Bolivia", img:"https://flagcdn.com/w320/bo.png"},{text:"Ecuador", img:"https://flagcdn.com/w320/ec.png"}],correcta:"Perú"},
+{pregunta:"Selecciona la bandera de Chile",respuestas:[{text:"Chile", img:"https://flagcdn.com/w320/cl.png"},{text:"Argentina", img:"https://flagcdn.com/w320/ar.png"},{text:"Perú", img:"https://flagcdn.com/w320/pe.png"},{text:"Bolivia", img:"https://flagcdn.com/w320/bo.png"}],correcta:"Chile"},
+{pregunta:"Selecciona la bandera de Bolivia",respuestas:[{text:"Bolivia", img:"https://flagcdn.com/w320/bo.png"},{text:"Perú", img:"https://flagcdn.com/w320/pe.png"},{text:"Ecuador", img:"https://flagcdn.com/w320/ec.png"},{text:"Chile", img:"https://flagcdn.com/w320/cl.png"}],correcta:"Bolivia"},
+{pregunta:"Selecciona la bandera de Cuba",respuestas:[{text:"Cuba", img:"https://flagcdn.com/w320/cu.png"},{text:"México", img:"https://flagcdn.com/w320/mx.png"},{text:"Colombia", img:"https://flagcdn.com/w320/co.png"},{text:"Venezuela", img:"https://flagcdn.com/w320/ve.png"}],correcta:"Cuba"},
+{pregunta:"Selecciona la bandera de Argentina",respuestas:[{text:"Argentina", img:"https://flagcdn.com/w320/ar.png"},{text:"Uruguay", img:"https://flagcdn.com/w320/uy.png"},{text:"Paraguay", img:"https://flagcdn.com/w320/py.png"},{text:"Chile", img:"https://flagcdn.com/w320/cl.png"}],correcta:"Argentina"},
+{pregunta:"Selecciona la bandera de Guatemala",respuestas:[{text:"Guatemala", img:"https://flagcdn.com/w320/gt.png"},{text:"Honduras", img:"https://flagcdn.com/w320/hn.png"},{text:"El Salvador", img:"https://flagcdn.com/w320/sv.png"},{text:"México", img:"https://flagcdn.com/w320/mx.png"}],correcta:"Guatemala"},
+{pregunta:"Selecciona la bandera de Ecuador",respuestas:[{text:"Ecuador", img:"https://flagcdn.com/w320/ec.png"},{text:"Perú", img:"https://flagcdn.com/w320/pe.png"},{text:"Colombia", img:"https://flagcdn.com/w320/co.png"},{text:"Bolivia", img:"https://flagcdn.com/w320/bo.png"}],correcta:"Ecuador"},
+{pregunta:"Selecciona la bandera de Venezuela",respuestas:[{text:"Venezuela", img:"https://flagcdn.com/w320/ve.png"},{text:"Colombia", img:"https://flagcdn.com/w320/co.png"},{text:"México", img:"https://flagcdn.com/w320/mx.png"},{text:"Argentina", img:"https://flagcdn.com/w320/ar.png"}],correcta:"Venezuela"}
+],
+personas:[
+{pregunta:"¿De qué país es Shakira?",respuestas:[{text:"Colombia"},{text:"México"},{text:"España"},{text:"Argentina"}],correcta:"Colombia"},
+{pregunta:"¿De qué país es Lionel Messi?",respuestas:[{text:"Argentina"},{text:"España"},{text:"México"},{text:"Colombia"}],correcta:"Argentina"},
+{pregunta:"¿De qué país es Penélope Cruz?",respuestas:[{text:"España"},{text:"Argentina"},{text:"México"},{text:"Chile"}],correcta:"España"},
+{pregunta:"¿De qué país es Juanes?",respuestas:[{text:"Colombia"},{text:"México"},{text:"Chile"},{text:"Perú"}],correcta:"Colombia"},
+{pregunta:"¿De qué país es Rigoberta Menchú?",respuestas:[{text:"Guatemala"},{text:"México"},{text:"Perú"},{text:"Chile"}],correcta:"Guatemala"},
+{pregunta:"¿De qué país es Frida Kahlo?",respuestas:[{text:"México"},{text:"España"},{text:"Argentina"},{text:"Chile"}],correcta:"México"},
+{pregunta:"¿De qué país es Evo Morales?",respuestas:[{text:"Bolivia"},{text:"Perú"},{text:"Chile"},{text:"Argentina"}],correcta:"Bolivia"},
+{pregunta:"¿De qué país es Gabriel García Márquez?",respuestas:[{text:"Colombia"},{text:"México"},{text:"Perú"},{text:"España"}],correcta:"Colombia"},
+{pregunta:"¿De qué país es Pablo Neruda?",respuestas:[{text:"Chile"},{text:"México"},{text:"Argentina"},{text:"Perú"}],correcta:"Chile"},
+{pregunta:"¿De qué país es Rigoberto Urán?",respuestas:[{text:"Colombia"},{text:"México"},{text:"Argentina"},{text:"Chile"}],correcta:"Colombia"}
+],
+monumentos:[
+{pregunta:"¿De qué país es 'Sagrada Familia'?",respuestas:[{text:"España"},{text:"México"},{text:"Perú"},{text:"Colombia"}],correcta:"España"},
+{pregunta:"¿De qué país es 'Machu Picchu'?",respuestas:[{text:"Perú"},{text:"Chile"},{text:"Argentina"},{text:"Bolivia"}],correcta:"Perú"},
+{pregunta:"¿De qué país es 'Cristo Redentor'?",respuestas:[{text:"Brasil"},{text:"Perú"},{text:"Argentina"},{text:"Chile"}],correcta:"Brasil"},
+{pregunta:"¿De qué país es 'La Alhambra'?",respuestas:[{text:"España"},{text:"México"},{text:"Perú"},{text:"Chile"}],correcta:"España"},
+{pregunta:"¿De qué país es 'Teotihuacán'?",respuestas:[{text:"México"},{text:"Perú"},{text:"España"},{text:"Colombia"}],correcta:"México"},
+{pregunta:"¿De qué país es 'Chichén Itzá'?",respuestas:[{text:"México"},{text:"Perú"},{text:"España"},{text:"Chile"}],correcta:"México"},
+{pregunta:"¿De qué país es 'Parque Nacional Torres del Paine'?",respuestas:[{text:"Chile"},{text:"Argentina"},{text:"Perú"},{text:"Bolivia"}],correcta:"Chile"},
+{pregunta:"¿De qué país es 'Isla de Pascua'?",respuestas:[{text:"Chile"},{text:"Perú"},{text:"Bolivia"},{text:"Argentina"}],correcta:"Chile"},
+{pregunta:"¿De qué país es 'Casa Rosada'?",respuestas:[{text:"Argentina"},{text:"México"},{text:"Chile"},{text:"Perú"}],correcta:"Argentina"},
+{pregunta:"¿De qué país es 'Acueducto de Segovia'?",respuestas:[{text:"España"},{text:"México"},{text:"Argentina"},{text:"Chile"}],correcta:"España"}
+],
+expresiones:[
+{pregunta:"¿De qué país es 'todo tranqui / ahí vamos'?",respuestas:[{text:"Honduras"},{text:"Chile"},{text:"México"},{text:"Cuba"}],correcta:"Honduras"},
+{pregunta:"¿De qué país es 'está filete, po'?",respuestas:[{text:"Chile"},{text:"Perú"},{text:"Argentina"},{text:"Venezuela"}],correcta:"Chile"},
+{pregunta:"¿De qué país es '¿quiubo? / ¡de una!'?",respuestas:[{text:"México"},{text:"Chile"},{text:"Colombia"},{text:"España"}],correcta:"México"},
+{pregunta:"¿De qué país es '¡chévere!'?",respuestas:[{text:"Venezuela"},{text:"México"},{text:"Chile"},{text:"Perú"}],correcta:"Venezuela"},
+{pregunta:"¿De qué país es '¡vale!'?",respuestas:[{text:"España"},{text:"México"},{text:"Chile"},{text:"Perú"}],correcta:"España"},
+{pregunta:"¿De qué país es '¡bacán!'?",respuestas:[{text:"Chile"},{text:"México"},{text:"Perú"},{text:"Colombia"}],correcta:"Chile"},
+{pregunta:"¿De qué país es '¡pura vida!'?",respuestas:[{text:"Costa Rica"},{text:"México"},{text:"Chile"},{text:"Perú"}],correcta:"Costa Rica"},
+{pregunta:"¿De qué país es '¡guay!'?",respuestas:[{text:"España"},{text:"México"},{text:"Colombia"},{text:"Argentina"}],correcta:"España"},
+{pregunta:"¿De qué país es '¡orale!'?",respuestas:[{text:"México"},{text:"España"},{text:"Perú"},{text:"Chile"}],correcta:"México"},
+{pregunta:"¿De qué país es '¡chido!'?",respuestas:[{text:"México"},{text:"España"},{text:"Chile"},{text:"Argentina"}],correcta:"México"}
+]
+};
+
+// --- Code du quiz (inchangé) ---
+let categoriaActual;
+let indicePregunta=0;
+let puntuacion=0;
+
+function startQuiz(categoria){
+  categoriaActual=categoria;
+  indicePregunta=0;
+  puntuacion=0;
+  document.querySelector('.category-select').classList.add('hidden');
+  document.getElementById('quiz').classList.remove('hidden');
+  mostrarPregunta();
+}
+
+function mostrarPregunta(){
+  const preguntaData = quizData[categoriaActual][indicePregunta];
+  shuffle(preguntaData.respuestas);
+
+  const answersDiv = document.getElementById('answers');
+  answersDiv.innerHTML = "";
+  answersDiv.className = "answers"; 
+
+  if(preguntaData.respuestas.some(r => r.img)) answersDiv.classList.add("flag-grid");
+
+  document.getElementById('question').innerText = preguntaData.pregunta;
+
+  preguntaData.respuestas.forEach(respuesta => {
+    const btn = document.createElement('button');
+    if(respuesta.img){
+      btn.classList.add("flag-btn");
+      btn.innerHTML = `<img src="${respuesta.img}" alt="${respuesta.text}">`;
+    } else {
+      btn.innerText = respuesta.text;
+    }
+    btn.onclick = () => comprobarRespuesta(respuesta.text);
+    answersDiv.appendChild(btn);
+  });
+
+  document.getElementById('score').innerText = "Puntuación: "+puntuacion+" / "+quizData[categoriaActual].length;
+}
+
+function comprobarRespuesta(seleccionada){
+  const correcta = quizData[categoriaActual][indicePregunta].correcta;
+  if(seleccionada===correcta) puntuacion++;
+  indicePregunta++;
+  if(indicePregunta<quizData[categoriaActual].length) mostrarPregunta();
+  else terminarQuiz();
+}
+
+function terminarQuiz(){
+  document.getElementById('quiz').classList.add('hidden');
+  const resultDiv=document.getElementById('result');
+  resultDiv.classList.remove('hidden');
+  let nivel="";
+  if(puntuacion<=3) nivel="🌱 Principiante";
+  else if(puntuacion<=7) nivel="🌎 Intermedio";
+  else nivel="🔥 Experto";
+  resultDiv.innerHTML="¡Quiz terminado!<br>Puntuación final: "+puntuacion+" / "+quizData[categoriaActual].length+"<br>Nivel: "+nivel;
+  document.getElementById('restart').classList.remove('hidden');
+}
+
+function restartQuiz(){
+  categoriaActual=null;
+  indicePregunta=0;
+  puntuacion=0;
+  document.getElementById('result').classList.add('hidden');
+  document.getElementById('restart').classList.add('hidden');
+  document.getElementById('quiz').classList.add('hidden');
+  document.querySelector('.category-select').classList.remove('hidden');
+}
+</script>
+</body>
+</html>
